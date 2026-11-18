@@ -1,0 +1,16 @@
+{
+  "name": "baizi",
+  "version": "1.0.0",
+  "description": "Study hub for Modern Chinese 1A, Units 1–4: flashcards, stroke-checked handwriting, grammar drills and mock oral interviews.",
+  "private": true,
+  "scripts": {
+    "generate": "node scripts/generate.cjs",
+    "build": "node scripts/generate.cjs && node scripts/build.cjs",
+    "check-pinyin": "node scripts/check-pinyin.cjs"
+  },
+  "devDependencies": {
+    "hanzi-writer-data": "2.0.1",
+    "pinyin-pro": "3.26.0"
+  },
+  "license": "MIT"
+}

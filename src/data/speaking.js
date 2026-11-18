@@ -1,0 +1,58 @@
+// Oral-test style questions for each lesson, with a model answer to compare against.
+// In model answers, ［ ］ marks a part you swap for your own information.
+window.BAIZI = window.BAIZI || {};
+
+BAIZI.SPEAKING = [
+  { l: "1.1", q: "你好！你好吗？", en: "Hi! How are you?", a: "我很好，谢谢。你呢？", ae: "I'm well, thanks. And you?" },
+  { l: "1.1", q: "你叫什么名字？", en: "What's your name?", a: "我叫［陈大东］。", ae: "My name is [Chen Dadong]." },
+  { l: "1.1", q: "您姓什么？", en: "What is your surname?", a: "我姓［刘］。", ae: "My surname is [Liu]." },
+  { l: "1.1", q: "你的老师姓什么？", en: "What's your teacher's surname?", a: "我的老师姓［孙］。她是孙老师。", ae: "My teacher's surname is [Sun]. She's Teacher Sun." },
+  { l: "1.1", q: "我很好。你同学呢？", en: "I'm fine. How about your classmate?", a: "他也很好。", ae: "He's also well." },
+  { l: "1.2", q: "你多大？", en: "How old are you?", a: "我［十九］岁。", ae: "I'm [19]." },
+  { l: "1.2", q: "你是哪国人？", en: "What's your nationality?", a: "我是［美国］人。", ae: "I'm [American]." },
+  { l: "1.2", q: "你是不是加拿大人？", en: "Are you Canadian?", a: "不是，我是［美国］人。", ae: "No, I'm [American]." },
+  { l: "1.2", q: "你的老师是哪国人？", en: "What's your teacher's nationality?", a: "我的老师是［中国］人。", ae: "My teacher is [Chinese]." },
+  { l: "1.2", q: "你的同学多大？", en: "How old is your classmate?", a: "我的同学［二十］岁。", ae: "My classmate is [20]." },
+  { l: "2.1", q: "你家有几口人？", en: "How many people are in your family?", a: "我家有［四］口人：爸爸、妈妈、［哥哥］和我。", ae: "There are [four] people in my family: Dad, Mom, [my older brother] and me." },
+  { l: "2.1", q: "你有没有兄弟姐妹？", en: "Do you have siblings?", a: "我有［一个妹妹］。／我没有兄弟姐妹。", ae: "I have [a younger sister]. / I don't have siblings." },
+  { l: "2.1", q: "你有宠物吗？", en: "Do you have a pet?", a: "我有［两只猫］。／我没有宠物。", ae: "I have [two cats]. / I don't have a pet." },
+  { l: "2.1", q: "你喜欢狗吗？", en: "Do you like dogs?", a: "我很喜欢狗，可是我没有狗。", ae: "I like dogs a lot, but I don't have one." },
+  { l: "2.1", q: "你妹妹几岁？", en: "How old is your younger sister?", a: "我妹妹［十］岁。", ae: "My younger sister is [10]." },
+  { l: "2.2", q: "你做什么工作？", en: "What do you do?", a: "我是［大学生］。", ae: "I'm [a college student]." },
+  { l: "2.2", q: "你爸爸做什么工作？", en: "What does your dad do?", a: "我爸爸是［律师］。", ae: "My dad is [a lawyer]." },
+  { l: "2.2", q: "你会说什么语言？", en: "What languages can you speak?", a: "我会说英语，还会说一点儿汉语。", ae: "I speak English, and also a little Chinese." },
+  { l: "2.2", q: "你会不会写汉字？", en: "Can you write Chinese characters?", a: "我会写一点儿，可是只会写简单的汉字。", ae: "I can write a little, but only simple characters." },
+  { l: "2.2", q: "那个女孩子是谁？", en: "Who is that girl?", a: "那个女孩子是我的朋友，她叫［小美］。", ae: "That girl is my friend. Her name is [Xiaomei]." },
+  { l: "3.1", q: "现在几点？", en: "What time is it now?", a: "现在［两点半］。", ae: "It's [2:30]." },
+  { l: "3.1", q: "足球比赛是星期几？", en: "What day is the soccer match?", a: "足球比赛是［星期三］。", ae: "The soccer match is on [Wednesday]." },
+  { l: "3.1", q: "比赛几点开始？", en: "What time does the match start?", a: "比赛晚上［七点］开始。", ae: "The match starts at [7] in the evening." },
+  { l: "3.1", q: "你什么时候去看比赛？", en: "When are you going to watch the match?", a: "我［星期三晚上］去看比赛。", ae: "I'm going to watch the match [Wednesday evening]." },
+  { l: "3.1", q: "我们星期三晚上见，好吗？", en: "Let's meet Wednesday evening, OK?", a: "好，我们［七点］见吧。", ae: "OK, let's meet at [7]." },
+  { l: "3.1", q: "对不起，我来晚了！", en: "Sorry, I'm late!", a: "没关系。比赛还没开始。", ae: "It's OK. The match hasn't started yet." },
+  { l: "3.2", q: "你的生日是几月几号？", en: "When is your birthday?", a: "我的生日是［十月八号］。", ae: "My birthday is [October 8]." },
+  { l: "3.2", q: "今天几月几号？星期几？", en: "What's the date today? What day is it?", a: "今天［十一月十六号］，［星期一］。", ae: "Today is [November 16], [Monday]." },
+  { l: "3.2", q: "你今年多大了？", en: "How old are you this year?", a: "我今年［十九］岁了。", ae: "I'm [19] this year." },
+  { l: "3.2", q: "你的生日派对是今天还是明天？", en: "Is your birthday party today or tomorrow?", a: "是［明天］。你来吗？", ae: "It's [tomorrow]. Are you coming?" },
+  { l: "3.2", q: "你生日的时候，谁送你礼物？", en: "Who gives you presents on your birthday?", a: "［我爸爸妈妈］都送我礼物。", ae: "[My mom and dad] both give me presents." },
+  { l: "3.2", q: "你喜欢吃蛋糕吗？", en: "Do you like eating cake?", a: "我很喜欢吃蛋糕！", ae: "I really like cake!" },
+  { l: "4.1", q: "欢迎光临！请问几位？", en: "Welcome! How many people?", a: "［两］位。", ae: "[Two]." },
+  { l: "4.1", q: "你想喝什么？", en: "What would you like to drink?", a: "请给我一杯［茶］。", ae: "Please give me a cup of [tea]." },
+  { l: "4.1", q: "你想吃什么菜？", en: "What dishes would you like?", a: "我想吃［饺子］，还想要一碗［酸辣汤］。", ae: "I'd like [dumplings], and also a bowl of [hot and sour soup]." },
+  { l: "4.1", q: "你饿不饿？", en: "Are you hungry?", a: "我很饿！我们去饭馆吃饭吧。", ae: "I'm very hungry! Let's go eat at a restaurant." },
+  { l: "4.1", q: "你喜不喜欢吃中国菜？", en: "Do you like Chinese food?", a: "我很喜欢吃中国菜，［饺子］很好吃。", ae: "I like Chinese food a lot; [dumplings] are delicious." },
+  { l: "4.2", q: "这个菜味道怎么样？", en: "How does this dish taste?", a: "很好吃，可是有一点儿［辣］。", ae: "It's tasty, but a little [spicy]." },
+  { l: "4.2", q: "你喜欢吃辣的吗？", en: "Do you like spicy food?", a: "我很喜欢！／我不喜欢，太辣了。", ae: "I love it! / I don't, it's too spicy." },
+  { l: "4.2", q: "你为什么不吃肉？", en: "Why don't you eat meat?", a: "因为我吃素。", ae: "Because I'm vegetarian." },
+  { l: "4.2", q: "你会用筷子吗？", en: "Can you use chopsticks?", a: "我会用筷子。／我不会，我用刀子和叉子。", ae: "I can use chopsticks. / I can't, I use a knife and fork." },
+  { l: "4.2", q: "你早饭吃什么？", en: "What do you eat for breakfast?", a: "我早饭吃［蛋糕］，喝［咖啡］。", ae: "For breakfast I eat [cake] and drink [coffee]." },
+  { l: "4.2", q: "今天谁请客？", en: "Who's treating today?", a: "今天我请客！", ae: "It's my treat today!" },
+];
+
+// "Can-do" goals from each unit, for the readiness checklist.
+BAIZI.CANDO = [
+  { u: 0, items: ["Read pinyin and hear the four tones", "Apply the tone change rules for 3rd tones, 不 and 一", "Follow basic stroke-order rules"] },
+  { u: 1, items: ["Greet people and say goodbye", "Introduce myself and ask someone's name", "Ask and answer about age", "Ask and answer about nationality", "Count from 1 to 99"] },
+  { u: 2, items: ["Say how many people are in my family and who they are", "Ask whether someone has pets", "Use measure words to count people and animals", "Ask what someone does for work", "Say what languages someone can speak"] },
+  { u: 3, items: ["Ask and tell the time", "Say the days of the week", "Suggest a time to meet", "Apologize for being late", "Give the date and my birthday", "Wish someone happy birthday and talk about gifts"] },
+  { u: 4, items: ["Say what I'd like to eat and drink", "Say I'm hungry or thirsty", "Order at a restaurant with measure words", "Describe flavors and give an opinion on a dish", "Explain why with 因为", "Offer to pay for the meal"] },
+];
