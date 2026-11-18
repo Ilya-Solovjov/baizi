@@ -17,7 +17,7 @@
     tally: { zh: '筹', en: 'Counting rods', a: 'count', d: 'Measure words deal +1 per hit.' },
     pepper: { zh: '花椒', en: 'Sichuan pepper', a: 'fluster', d: 'Each Fluster you apply is +1.' },
     incense: { zh: '香', en: 'Incense', a: 'mastery', d: 'Whenever a card is Spent, gain 2 Block.' },
-    ink: { zh: '墨', en: 'Ink stick', a: 'mastery', d: 'Speaking a card (说) also draws 1.' },
+    ink: { zh: '墨', en: 'Ink stick', d: 'While Tongue-tied, typing a card right also draws 1.' },
     gong: { zh: '锣', en: 'Gong', a: 'power', d: 'Start each fight with 1 Strength.' },
     bell: { zh: '铃', en: 'Temple bell', a: 'echo', d: 'The first card you play each fight plays twice.' },
     scroll: { zh: '卷轴', en: 'Scroll', a: 'question', d: 'Draw 1 extra card each turn.' },

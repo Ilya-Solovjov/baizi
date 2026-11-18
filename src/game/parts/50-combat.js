@@ -2,11 +2,12 @@
   let F = null;
   function combat(eid) {
     const E = ENEMIES[eid]; const act = RUN.act;
-    const scale = (act === 2 && !E.boss && !E.act ? 1.45 : 1) * (E.elite ? 1.1 : 1);
+    const normal = !E.boss && !E.elite;
+    const scale = (normal ? 1.1 : 1) * (act === 2 && !E.boss && !E.act ? 1.45 : 1) * (E.elite && spice(3) ? 1.2 : 1) * (E.boss && spice(4) ? 1.1 : 1) * (normal && spice(7) ? 1.15 : 1);
     const hp = Math.round((rint(E.hp[0], E.hp[1]) + (E.boss ? 0 : Math.floor(RUN.floor * 1.5))) * scale);
-    F = { eid, E, ehp: hp, emax: hp, eblock: 0, estr: act === 2 && !E.boss ? 2 : 0, evuln: 0, eweak: 0, fluster: 0, mi: 0, turn: 0,
+    F = { eid, E, ehp: hp, emax: hp, eblock: 0, estr: (act === 2 && !E.boss ? 2 : 0) + (E.elite && spice(3) ? 1 : 0), dmgMult: 1.15 + (normal && spice(2) ? 0.1 : 0) + (E.boss && spice(4) ? 0.1 : 0), evuln: 0, eweak: 0, fluster: 0, mi: 0, turn: 0,
       draw: shuffle(RUN.deck.map(c => c.uid)), hand: [], disc: [], exh: [], junk: {}, energy: 3, block: 0, str: 0, pweak: 0, vigor: 0,
-      flow: 0, count: 0, echo: 0, echoVerb: 0, fdouble: false, dblTurn: false, firstAtk: true, firstCard: true, busy: false, enraged: false,
+      flow: 0, count: 0, tongue: 0, echo: 0, echoVerb: 0, fdouble: false, dblTurn: false, firstAtk: true, firstCard: true, busy: false, enraged: false,
       played: [], spent: 0, pw: {}, next: { block: 0, energy: 0, draw: 0 } };
     RUN.deck.forEach(c => { c.cracked = false; });
     // Openers go on top of the draw pile (the end of the array is the top).
@@ -52,7 +53,7 @@
     renderFight();
   }
   const intent = () => F.E.moves[F.mi % F.E.moves.length];
-  const edmg = v => Math.floor((v + F.estr) * (F.eweak ? 0.75 : 1));
+  const edmg = v => Math.floor((v + F.estr) * F.dmgMult * (F.eweak ? 0.75 : 1));
   function incoming() { if (!F) return 0; const [t, v, n] = intent(); return t === 'atk' ? edmg(v) * (n || 1) : (t === 'ask' || t === 'talk') ? edmg(v) : 0; }
   function intentHTML() {
     const [t, v, n] = intent(); const dmg = edmg(v);
@@ -65,8 +66,10 @@
       heal: ['i-buff', 'Heal ' + v, 'Will heal ' + v + ' HP.'],
       curse: ['i-curse', 'Noise ×' + v, 'Will shuffle ' + v + ' Noise cards into your discard pile.'],
       weaken: ['i-curse', 'Weaken ' + v, 'Will make you Weak for ' + v + ' turns (you deal 25% less).'],
+      calm: ['i-buff', 'Calm', 'Will shake off half its Fluster.'],
+      tongue: ['i-curse', '舌 Tongue-tie ' + v, 'Will tie your tongue: your next ' + v + ' cards must be typed from memory (pinyin).'],
     }[t];
-    const ic = { atk: 'sword', ask: 'ask', talk: 'talk', block: 'shield', str: 'up', heal: 'heart', curse: 'noise', weaken: 'down' }[t];
+    const ic = { atk: 'sword', ask: 'ask', talk: 'talk', block: 'shield', str: 'up', heal: 'heart', curse: 'noise', weaken: 'down', tongue: 'talk', calm: 'heart' }[t];
     return '<span class="intent ' + I[0] + '" title="' + esc(I[2]) + '">' + icon(ic) + '<span>' + I[1] + '</span></span><span class="intent-cap">' + esc(I[2]) + '</span>';
   }
   function bar(cur, max, block, cls) { return '<div class="hpbar ' + cls + '"><i style="width:' + Math.max(0, 100 * cur / max) + '%"></i><span>' + (block ? '<b class="blk">' + block + '</b> ' : '') + Math.max(0, cur) + ' / ' + max + '</span></div>'; }
@@ -86,10 +89,11 @@
     if (F.echoVerb) ps.push(st('echo', '一下', null, 'Your next verb plays twice'));
     if (F.fdouble) ps.push(st('fl', '很 ×2', null, 'Your next Fluster is doubled'));
     if (F.pweak) ps.push(st('weak', 'Weak', F.pweak, 'You deal 25% less damage'));
+    if (F.tongue) ps.push(st('fl', '舌 Tongue-tied', F.tongue, 'Your next ' + F.tongue + ' cards must be typed from memory'));
     if (F.dblTurn) ps.push(st('str', '辣油 ×2', null, 'Chili oil: attacks deal double this turn'));
     for (const [k, v] of Object.entries(F.pw)) if (v && PWLABEL[k]) ps.push(st('pw', PWLABEL[k][0], k === 'keepBlock' ? null : v, 'Power: ' + (k === 'keepBlock' ? 'your Block stays between turns' : v + ' ' + PWLABEL[k][1])));
     const last = lastPlayed();
-    const hint = F.echo ? 'Your next card plays twice.' : F.fdouble ? 'Your next Fluster is doubled.' : last ? 'Last: <b class="han">' + esc(last.h) + '</b>' + (COMBOS.some(x => x.a === gcls(last)) ? ' · combos into ' + COMBOS.filter(x => x.a === gcls(last)).map(x => x.name.split(' + ')[1]).join(' / ') : '') : 'Gold-edged cards make a grammar combo with the card you just played.';
+    const hint = F.tongue ? '<b>舌 Tongue-tied:</b> type the pinyin from memory for your next ' + (F.tongue > 1 ? F.tongue + ' cards' : 'card') + '.' : F.echo ? 'Your next card plays twice.' : F.fdouble ? 'Your next Fluster is doubled.' : last ? 'Last: <b class="han">' + esc(last.h) + '</b>' + (COMBOS.some(x => x.a === gcls(last)) ? ' · combos into ' + COMBOS.filter(x => x.a === gcls(last)).map(x => x.name.split(' + ')[1]).join(' / ') : '') : 'Gold-edged cards make a grammar combo with the card you just played.';
     root.innerHTML = topbar() +
       '<section class="fight' + (E.boss ? ' boss-fight' : '') + '">' +
         '<div class="arena">' +
@@ -101,14 +105,13 @@
           '<div class="hand">' + F.hand.map((u, i) => {
             const c = card(u), d = def(c), cost = costOf(c); const cb = !!comboFor(last, c) && d.t !== 'junk';
             return '<div class="hand-slot" style="--i:' + i + ';--n:' + F.hand.length + '"><button class="hand-card' + (d.t === 'junk' || cost > F.energy ? ' cant' : '') + (cb ? ' combo-ready' : '') + '" data-u="' + u + '" aria-label="' + esc(TYPES[d.t] + ' ' + c.h + ', cost ' + cost + (cb ? ', combo' : '')) + '">' + cardHTML(c, { live: true, combo: cb }) + '</button>' +
-              (c.up && d.t !== 'junk' ? '<button class="speak-btn" data-speak="' + u + '" title="Speak it: type the pinyin from memory. Right: plays twice, then Spent." aria-label="Speak ' + esc(c.h) + '">说</button>' : '') + '</div>';
+              '</div>';
           }).join('') + '</div>' +
           '<div class="piles"><span title="Draw pile">Draw <b>' + F.draw.length + '</b></span><span title="Discard pile">Discard <b>' + F.disc.length + '</b></span>' + (F.exh.length ? '<span title="Spent this fight">Spent <b>' + F.exh.length + '</b></span>' : '') + '<button class="btn primary" id="endTurn">End turn <kbd>E</kbd></button></div>' +
         '</div>' +
       '</section>';
     bindTop();
     $$('.hand-card').forEach(b => b.addEventListener('click', () => playCard(+b.dataset.u, b)));
-    $$('.speak-btn').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); playCard(+b.dataset.speak, b.previousElementSibling, true); }));
     $('#endTurn').addEventListener('click', endTurn);
   }
   function floatNum(sel, text, cls) { const host = $(sel); if (!host) return; const s = document.createElement('span'); s.className = 'float ' + cls; s.textContent = text; host.appendChild(s); setTimeout(() => s.remove(), 1000); }
@@ -233,28 +236,31 @@
   async function runEffect(c, m, combo) {
     const d = def(c); await d.run(valsOf(c), actions(c, m, combo));
   }
-  async function playCard(uid, el, speaking) {
+  async function playCard(uid, el) {
     if (!F || F.busy) return; const c = card(uid); const d = def(c); const cost = costOf(c);
     const deny = msg => { if (el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); } sfx('bad'); if (msg) toastMsg(msg); };
     if (d.t === 'junk') return deny('Noise can’t be played. It’s Spent at the end of your turn.');
     if (cost > F.energy) return deny('Not enough energy. End your turn to refill.');
     F.busy = true; sfx('card');
     const prev = lastPlayed();
+    // Tongue-tied (an enemy debuff): this card has to be typed from memory.
+    const speaking = F.tongue > 0; if (speaking) F.tongue--;
     const ok = await castQuestion(c, speaking ? 'type' : null, speaking);
+    if (speaking && ok) RUN.stats.spoken++;
+    if (!ok && RUN.asc >= 8) { RUN.hp = Math.max(1, RUN.hp - 2); floatNum('.you .sprite', '-2', 'dmg'); }
     const kws = kwOf(c);
     const combo = ok ? comboFor(prev, c) : null;
     if (ok && c.cracked) { c.cracked = false; F.block += 3; toastMsg('Repaired ' + c.h + ': +3 Block'); if (RUN.relics.includes('knot')) RUN.hp = Math.min(RUN.maxHp, RUN.hp + 3); }
-    if (ok && !c.up) { c.xp++; if (c.xp >= 3) { c.up = true; toastMsg('Mastered ' + c.h + ' (熟): upgraded, and you can now Speak it.'); } }
+    if (ok && !c.m) { c.xp++; if (c.xp >= 3) { c.m = true; toastMsg('Mastered ' + c.h + ' (熟): its questions are now the hardest kind.'); } }
     F.energy -= cost; F.hand = F.hand.filter(u => u !== uid);
     // How many times it plays.
     let plays = 1;
     if (ok && kws.includes('Echo')) plays++;
     if (F.echo > 0) { F.echo--; plays++; }
     if (isVerb(c) && F.echoVerb > 0) { F.echoVerb--; plays++; }
-    if (speaking && ok) { plays++; RUN.stats.spoken++; }
     if (F.firstCard && RUN.relics.includes('bell')) plays++;
     if (d.t === 'atk' && F.firstAtk && RUN.relics.includes('chopsticks')) plays++;
-    plays = Math.min(plays, 3); if (plays > 1) RUN.stats.echoes++;
+    plays = Math.min(plays, 2); if (plays > 1) RUN.stats.echoes++;
     F.firstCard = false;
     F.played.push({ c, ok });
     if (isVerb(c)) { F.flow++; if (F.pw.onVerbBlock) F.block += F.pw.onVerbBlock; }
@@ -264,7 +270,7 @@
       if (combo.bonus.count) F.count += combo.bonus.count; if (combo.bonus.flow) F.flow += combo.bonus.flow;
       const banner = document.createElement('div'); banner.className = 'combo-banner'; banner.setAttribute('role', 'status'); banner.innerHTML = '<span>Grammar combo</span><b class="han">' + esc(prev.h) + ' ' + esc(c.h) + '</b><small>' + esc(combo.name) + ' · ' + esc(combo.d) + '</small>'; document.body.appendChild(banner); setTimeout(() => banner.remove(), 1500);
     }
-    if (plays > 1) floatNum('.you .sprite', plays === 3 ? '×3' : 'Twice', 'echo');
+    if (plays > 1) floatNum('.you .sprite', 'Twice', 'echo');
     const vigorUsed = d.t === 'atk' && F.vigor;
     for (let i = 0; i < plays; i++) {
       await runEffect(c, ok ? 1 : 0.5, combo);
@@ -274,7 +280,7 @@
     if (ok && F.pw.onRight) lose(F.pw.onRight);
     // Where the card goes.
     if (d.t === 'pow') F.exh.push(uid);
-    else if (kws.includes('Spent') || (speaking && ok)) spendCard(uid);
+    else if (kws.includes('Spent')) spendCard(uid);
     else if (!ok) { c.cracked = true; F.draw.push(uid); }
     else F.disc.push(uid);
     if (speaking && ok && RUN.relics.includes('ink')) drawN(1);
@@ -313,7 +319,7 @@
     F.flow = 0; F.echo = 0; F.echoVerb = 0; F.fdouble = false;
     renderFight(); await sleep(220);
     if (F.fluster > 0) {
-      lose(F.fluster, '慌'); F.fluster--; renderFight({ foe: 'hurt', foeFace: 'hurt' }); await sleep(380);
+      lose(F.fluster, '慌'); F.fluster -= Math.max(1, Math.ceil(F.fluster / 4)); renderFight({ foe: 'hurt', foeFace: 'hurt' }); await sleep(380);
       if (F.ehp <= 0) { F.busy = false; return winFight(); }
     }
     const [t, v, n] = intent(); const E = F.E;
@@ -330,6 +336,8 @@
     else if (t === 'str') { F.estr += v; renderFight({ foeFace: 'angry' }); floatNum('.foe .sprite', 'Strength +' + v, 'dmg'); await sleep(350); }
     else if (t === 'heal') { F.ehp = Math.min(F.emax, F.ehp + v); renderFight(); floatNum('.foe .sprite', '+' + v, 'heal'); await sleep(350); }
     else if (t === 'curse') { for (let i = 0; i < v; i++) { const id = JUID--; F.junk[id] = { uid: id, h: '乱', p: 'luàn', e: 'noise', pos: 'noise', tid: 'noise', up: false, xp: 0 }; F.disc.push(id); } renderFight(); floatNum('.you .sprite', '+' + v + ' Noise', 'dmg'); await sleep(400); }
+    else if (t === 'calm') { const lost = Math.ceil(F.fluster / 2); F.fluster -= lost; renderFight(); floatNum('.foe .sprite', lost ? 'Calm −' + lost + ' 慌' : 'Calm', 'blk'); await sleep(380); }
+    else if (t === 'tongue') { F.tongue += v; renderFight({ youFace: 'hurt' }); floatNum('.you .sprite', 'Tongue-tied', 'fl'); await sleep(400); }
     else if (t === 'weaken') { F.pweak += v; renderFight({ youFace: 'hurt' }); floatNum('.you .sprite', 'Weak ' + v, 'dmg'); await sleep(400); }
     if (E.boss && !F.enraged && F.ehp <= F.emax / 2) { F.enraged = true; F.estr += 3; toastMsg(E.zh + ' is enraged: 太生气了！ tài shēngqì le! (+3 Strength)'); }
     F.mi++; if (F.evuln) F.evuln--; if (F.eweak) F.eweak--;

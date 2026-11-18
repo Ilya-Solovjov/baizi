@@ -1,4 +1,4 @@
-/* 夜市 Night Market Run: black lacquer, vermilion seals, worn gold, drawn as pixel art.
+/* 百字 Bǎizì: black lacquer, vermilion seals, worn gold, drawn as pixel art.
    Layout: sticky status bar, then one screen at a time in a 1000px column. */
 :root {
   color-scheme: dark;
@@ -10,7 +10,7 @@
   --c-atk: #8E2A20; --c-skl: #2D5A4F; --c-pow: #8A6524; --c-junk: #4A403A;
   --r-C: #5E5246; --r-U: #8FAFC9; --r-R: #E0BE6E;
   --sil: #090605; --sil-line: #3B2C23; --rim: #9A7550; --eye: #FF5A36; --rim-you: #8FB3A6; --eye-you: #F4DDA6; --lamp: #E8643A;
-  --font-display: "Pixelify Sans", "IBM Plex Sans Condensed", monospace;
+  --font-display: "PX Digits", "Pixelify Sans", "IBM Plex Sans Condensed", monospace;
   --font-body: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
   --font-han: "Noto Serif SC", "Songti SC", "SimSun", serif;
 }
@@ -397,3 +397,22 @@ button.potion:hover { border-color: var(--jade); }
 .seal-mark { transform: none; box-shadow: inset 0 0 0 4px var(--red), inset 0 0 0 6px rgba(246, 231, 210, .75); }
 .combo-banner b { font-family: var(--font-han); }
 @media (max-width: 640px) { .energy { width: 60px; height: 60px; } .energy b { font-size: 1.5rem; } }
+
+/* conversation translation after you answer */
+.talk-tr { display: grid; gap: 8px; margin: 10px 0 12px; text-align: left; }
+.talk-tr > div { display: grid; gap: 1px; background: var(--bg-2); border-left: 3px solid var(--line-2); padding: 6px 10px; }
+.talk-tr .han { font-size: 1.15rem; color: var(--ink); }
+.talk-en { color: var(--ink-2); font-size: .92rem; }
+
+/* spice levels (difficulty) */
+.spice { width: 100%; max-width: 760px; text-align: left; background: var(--panel); border: 2px solid var(--line); padding: 10px 14px; clip-path: var(--notch); display: grid; gap: 6px; }
+.spice.locked { color: var(--ink-2); font-size: .9rem; display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.spice b { font-family: var(--font-display); color: #E9877A; }
+.spice-head { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.spice-step { display: inline-flex; align-items: center; gap: 6px; }
+.spice-step .ghost { padding: 2px 10px; }
+.spice-step .ghost:disabled { opacity: .35; cursor: default; }
+.spice-n { font-size: 1.4rem; min-width: 1.4em; text-align: center; }
+.spice-rules { margin: 0; padding-left: 22px; color: var(--ink-2); font-size: .86rem; display: grid; gap: 2px; }
+.spice-chip { color: #E9877A; border-color: #6E2A20; }
+.title-screen .paths { justify-self: center; }

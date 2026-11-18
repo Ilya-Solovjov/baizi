@@ -4,7 +4,10 @@
   const BASIC_ATK = ['strike', 'flurry', 'jab', 'guardstrike'], BASIC_DEF = ['guard', 'scout', 'steady', 'ally', 'snack', 'plan', 'topic'];
   function newRun(path) {
     const P = PATHS.find(p => p.id === path) || PATHS[0];
-    RUN = { lessons: P.lessons, path: P.id, bosses: P.bosses, act: 1, hp: 64, maxHp: 64, coins: 40, relics: [], potions: ['tea'], deck: [], floor: 0, pos: null, done: [], map: genMap(), log: {}, seen: [], stats: newStats() };
+    const asc = Math.max(0, Math.min(META.ascPick || 0, META.ascMax || 0));
+    RUN = { lessons: P.lessons, path: P.id, bosses: P.bosses, asc, act: 1, hp: 64, maxHp: 64, coins: 40, relics: [], potions: ['tea'], deck: [], floor: 0, pos: null, done: [], map: null, log: {}, seen: [], stats: newStats() };
+    RUN.map = genMap();
+    if (spice(6)) RUN.hp = Math.round(RUN.maxHp * 0.8);
     const ws = WORDS.filter(w => P.lessons.includes(w.l) && (w.tier === 'L' || w.tier === 'R')).filter((w, i, a) => a.findIndex(x => x.h === w.h) === i);
     const by = ids => shuffle(ws.filter(w => ids.includes(tplId(w)) && [...w.h].length <= 3));
     const score = h => META.words[h].w - META.words[h].r * 0.5;
@@ -14,6 +17,7 @@
     const base = atk.slice(0, 4).concat(def0.slice(0, 4), by(['hex', 'sting', 'wither']).slice(0, 1), by(['what', 'which', 'howabout', 'ne']).slice(0, 1));
     const starter = weak.concat(base.filter(w => !weak.some(x => x.h === w.h))).slice(0, 10 + Math.min(2, weak.length));
     RUN.deck = starter.map(makeCard); RUN.seen = starter.map(w => w.h); RUN.weak = weak.map(w => w.h);
+    if (spice(9)) RUN.deck.push({ uid: UID++, h: '乱', p: 'luàn', e: 'noise', pos: 'noise', tid: 'noise', up: false, xp: 0 });
     META.runs++; saveMeta(); saveRun();
     if (weak.length) toastMsg('Words you missed last time joined your deck: ' + weak.map(w => w.h).join(' '));
   }

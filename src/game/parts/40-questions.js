@@ -8,7 +8,7 @@
     return out;
   }
   function questionMode(c) {
-    const lvl = c.up ? 3 : c.xp; const w = wordOf(c.h) || {};
+    const lvl = c.m || c.up ? 3 : c.xp; const w = wordOf(c.h) || {};
     if (lvl === 0) return 'meaning';
     if (lvl === 1) return 'pinyin';
     if (lvl === 2) return w.syl && toneVariants(w, 3).length >= 2 ? 'tones' : 'pinyin';
@@ -29,7 +29,7 @@
     const prompt = mode === 'reverse' ? '<div class="q-en">' + esc(short(c.e)) + '</div>' : mode === 'listen' ? '<button class="listen-btn" id="replay" aria-label="Play the word again">▶ Play again</button>' : '<div class="q-han">' + esc(c.h) + '</div>';
     return new Promise(res => {
       const d = def(c), spent = kwOf(c).includes('Spent');
-      const head = speaking ? '<b>说 Speak.</b> Type it from memory. Right: it plays twice, then it’s Spent for this fight.' : TYPES[d.t] + ' · ' + describe(c, true) + (c.cracked ? ' · <b>Cracked: answer right to repair it</b>' : '');
+      const head = speaking ? '<b>舌 Tongue-tied.</b> Type the pinyin from memory to play ' + TYPES[d.t].toLowerCase() + ': ' + describe(c, true) : TYPES[d.t] + ' · ' + describe(c, true) + (c.cracked ? ' · <b>Cracked: answer right to repair it</b>' : '');
       const ov = modal('<div class="q-kind t-' + d.t + '">' + head + '</div>' + prompt + '<p class="q-ask">' + QLABEL[mode] + '</p>' +
         (opts ? '<div class="q-opts">' + opts.map((o, i) => '<button data-o="' + esc(o) + '"><span class="k">' + (i + 1) + '</span><span class="' + (mode === 'reverse' ? 'han big' : '') + '">' + esc(o) + '</span></button>').join('') + '</div>'
           : '<form class="q-type" id="qtype"><input id="qin" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="pinyin, e.g. ni hao" aria-label="Pinyin"><button class="btn primary" type="submit">Play</button><button class="ghost" type="button" id="dunno">I don’t know</button></form>') +
@@ -38,7 +38,7 @@
       let done = false, key = () => { };
       const finish = ok => {
         done = true;
-        $('.q-fb', ov).innerHTML = '<span class="han">' + esc(c.h) + '</span> <span class="py">' + esc(c.p) + '</span> · ' + esc(short(c.e)) + (ok ? '' : '<br><b class="bad">' + (speaking ? 'It plays once at half strength and cracks.' : spent ? 'Half effect.' : 'Half effect, and the card cracks: it comes back next turn.') + '</b>');
+        $('.q-fb', ov).innerHTML = '<span class="han">' + esc(c.h) + '</span> <span class="py">' + esc(c.p) + '</span> · ' + esc(short(c.e)) + (ok ? '' : '<br><b class="bad">' + (spent ? 'Half effect.' : 'Half effect, and the card cracks: it comes back next turn.') + '</b>');
         sfx(ok ? 'good' : 'bad'); if (mode !== 'listen') speak(c.h); noteWord(c.h, ok);
         setTimeout(() => { ov.remove(); document.removeEventListener('keydown', key); res(ok); }, ok ? 750 : 1900);
       };
@@ -68,7 +68,12 @@
         if (done) return; done = true; const ok = +b.dataset.oi === rightIdx;
         $$('.q-opts button', ov).forEach(x => { x.disabled = true; if (+x.dataset.oi === rightIdx) x.classList.add('right'); }); if (!ok) b.classList.add('wrong');
         $('.q-fb', ov).innerHTML = onDone(ok); sfx(ok ? 'good' : 'bad');
-        setTimeout(() => { ov.remove(); document.removeEventListener('keydown', key); res(ok); }, ok ? delays[0] : delays[1]);
+        const close = () => { ov.remove(); document.removeEventListener('keydown', key); res(ok); };
+        if (delays === 'wait') {
+          // Conversations wait for you, so there's time to read the English.
+          $('.q-fb', ov).insertAdjacentHTML('beforeend', '<button class="btn primary" id="qContinue">Continue <kbd>Enter</kbd></button>');
+          const btn = $('#qContinue', ov); btn.focus(); btn.addEventListener('click', close);
+        } else setTimeout(close, ok ? delays[0] : delays[1]);
       };
       $$('.q-opts button', ov).forEach(b => b.addEventListener('click', () => choose(b)));
       const key = e => { const i = +e.key - 1; const b = $$('.q-opts button', ov)[i]; if (b) { e.preventDefault(); choose(b); } };
@@ -100,7 +105,10 @@
       if (ok) RUN.stats.talksRight++;
       speak(t.a.zh);
       RUN.log['¶' + t.p] = RUN.log['¶' + t.p] || { r: 0, w: 0 }; ok ? RUN.log['¶' + t.p].r++ : RUN.log['¶' + t.p].w++;
-      return (ok ? '<b class="good">Nice reply!</b>' : '<b class="bad">Not the best reply.</b> A good answer: <span class="han">' + esc(t.a.zh) + '</span>') + '<div class="small muted">From the language-partner practice sheets.</div>';
-    }, [1400, 2800]);
+      const en = zh => LINE_EN[zh] ? '<span class="talk-en">' + esc(LINE_EN[zh]) + '</span>' : '';
+      return (ok ? '<b class="good">Good reply.</b>' : '<b class="bad">Not the best reply.</b>') +
+        '<div class="talk-tr"><div><span class="eyebrow">' + esc(enemy.zh) + ' said</span><span class="han">' + esc(t.p) + '</span>' + en(t.p) + '</div>' +
+        '<div><span class="eyebrow">Best reply</span><span class="han">' + esc(t.a.zh) + '</span>' + (LINE_EN[t.a.zh] ? en(t.a.zh) : '<span class="talk-en">' + esc(t.cue) + '</span>') + '</div></div>';
+    }, 'wait');
   }
 

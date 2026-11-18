@@ -1,5 +1,5 @@
   // ───────────── Pixel sprites ─────────────
-  /* Every character in Night Market Run, drawn with PX. */
+  /* Every character in Bǎizì, drawn with PX. */
   (function () {
     const { S } = PX;
     const R = {

@@ -5,7 +5,7 @@
     return '<header class="bar"><div class="bar-l"><span class="hp-chip" title="Health">' + icon('hp') + '<b>' + Math.max(0, RUN.hp) + '</b>/' + RUN.maxHp + '</span><span class="coin-chip" title="Coins">' + icon('coin') + RUN.coins + '</span>' +
       '<span class="relics">' + RUN.relics.map(relicIcon).join('') + '</span>' +
       '<span class="potions">' + [0, 1].map(i => { const p = RUN.potions[i]; return p ? '<button class="potion" data-pi="' + i + '" title="' + esc(POTIONS[p].en + ': ' + POTIONS[p].d + (F ? ' Tap to use.' : ' Use it during a fight.')) + '" aria-label="' + esc(POTIONS[p].en + ' potion: ' + POTIONS[p].d) + '"><span class="han">' + POTIONS[p].zh + '</span></button>' : '<span class="potion empty" title="Empty potion slot"></span>'; }).join('') + '</span></div>' +
-      '<div class="bar-r"><span class="floor">Act ' + RUN.act + ' · ' + Math.min(RUN.floor + 1, ROWS + 1) + '</span><button class="ghost" id="deckBtn">Deck ' + RUN.deck.length + '</button></div></header>';
+      '<div class="bar-r">' + (RUN.asc ? '<span class="floor spice-chip" title="Spice level ' + RUN.asc + '">辣 ' + RUN.asc + '</span>' : '') + '<span class="floor">Act ' + RUN.act + ' · ' + Math.min(RUN.floor + 1, ROWS + 1) + '</span><button class="ghost" id="deckBtn">Deck ' + RUN.deck.length + '</button></div></header>';
   }
   function bindTop() {
     const d = $('#deckBtn'); if (d) d.addEventListener('click', showDeck);
@@ -24,7 +24,7 @@
       '<span class="card-type">' + TYPES[d.t] + (POSNAME[c.pos] ? ' · ' + POSNAME[c.pos] : '') + '</span>' +
       '<span class="card-txt">' + (kws.length ? '<span class="kws">' + kws.join(' · ') + '</span>' : '') + describe(cc, opts.live, opts.up) + '</span>' +
       '<span class="card-foot">' + (A ? '<span class="arch a-' + d.a + '" title="' + esc(A.en + ' build: ' + A.d) + '">' + A.zh + '</span>' : '<span></span>') +
-        (d.t === 'junk' ? '' : c.up ? '<span class="mastered" title="Mastered (熟): upgraded, and you can Speak it">熟</span>' : '<span class="pips" title="Answer right 3 times to master and upgrade">' + [0, 1, 2].map(i => '<i class="' + (i < c.xp ? 'on' : '') + '"></i>').join('') + '</span>') + '</span>' +
+        (d.t === 'junk' ? '' : c.m ? '<span class="mastered" title="Mastered (熟): you get the hardest questions for this word">熟</span>' : '<span class="pips" title="Answer right 3 times to master this word">' + [0, 1, 2].map(i => '<i class="' + (i < c.xp ? 'on' : '') + '"></i>').join('') + '</span>') + '</span>' +
       (opts.combo ? '<span class="combo-tag">combo</span>' : '') + '</div>';
   }
   function archCounts(deck) {

@@ -17,6 +17,9 @@
   ];
 
   // Conversation lines from the language-partner practice sheets, each with its best reply.
+  // English for conversation lines: from the phrase lists, the role-play cues' model answers, and PARTNER_EN.
+  const LINE_EN = Object.assign({}, B.PARTNER_EN || {});
+  (function walk(o) { if (Array.isArray(o)) o.forEach(walk); else if (o && typeof o === 'object') { if (o.zh && o.en && !LINE_EN[o.zh]) LINE_EN[o.zh] = o.en; Object.values(o).forEach(walk); } })(B.PARTNER || []);
   const TALKS = [];
   for (const P of B.PARTNER || []) {
     const resolve = a => {

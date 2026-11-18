@@ -7,7 +7,7 @@
     const ac = archCounts(RUN.deck), builds = Object.keys(ac);
     const out = [];
     for (let slot = 0; slot < n; slot++) {
-      const roll = Math.random(), rare = elite ? 0.16 : 0.06, unc = elite ? 0.55 : 0.4;
+      const roll = Math.random(), rare = elite ? 0.12 : 0.04, unc = elite ? 0.5 : 0.36;
       const want = roll < rare ? 'R' : roll < unc ? 'U' : 'C';
       const lean = builds.length && Math.random() < 0.5 ? pick(builds.flatMap(b => Array(ac[b]).fill(b))) : null;
       const ok = w => !out.includes(w) && !out.some(o => tplId(o) === tplId(w));
@@ -42,7 +42,7 @@
     const potion = (E.elite || Math.random() < 0.4) ? gainPotion() : null;
     const turns = F.turn;
     F = null; saveRun();
-    const choices = cardChoices(3, E.elite);
+    const choices = cardChoices(spice(10) ? 2 : 3, E.elite);
     root.innerHTML = topbar() + '<section class="reward"><p class="eyebrow">Victory · ' + turns + ' turn' + (turns === 1 ? '' : 's') + '</p><h2><span class="han">' + esc(E.zh) + '</span> is down.</h2>' +
       '<div class="loot"><span class="loot-item coin">+' + coins + ' coins</span>' + (relic ? '<span class="loot-item" title="' + esc(RELICS[relic].d) + '"><b class="han">' + RELICS[relic].zh + '</b> ' + esc(RELICS[relic].en) + '</span>' : '') + (potion ? '<span class="loot-item" title="' + esc(POTIONS[potion].d) + '"><b class="han">' + POTIONS[potion].zh + '</b> ' + esc(POTIONS[potion].en) + '</span>' : '') + '</div>' +
       (relic ? '<p class="small muted">' + esc(RELICS[relic].en) + ': ' + esc(RELICS[relic].d) + '</p>' : '') + (potion ? '<p class="small muted">' + esc(POTIONS[potion].en) + ': ' + esc(POTIONS[potion].d) + ' Tap it in the top bar during a fight.</p>' : '') +

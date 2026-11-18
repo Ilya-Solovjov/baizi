@@ -7,7 +7,7 @@
     const talks = Object.entries(RUN.log).filter(([k, v]) => k.startsWith('¶') && v.w).map(([k]) => k.slice(1));
     const row = h => { const w = wordOf(h) || { p: '', e: '' }; return '<li><button class="say" data-say="' + esc(h) + '" aria-label="Play ' + esc(h) + '">▶</button><b class="han">' + esc(h) + '</b> <span class="py">' + esc(w.p) + '</span> <span class="muted">' + esc(short(w.e)) + '</span></li>'; };
     const S = RUN.stats, acc = S.casts ? Math.round(100 * S.right / S.casts) : 0;
-    return '<div class="stat-tiles"><div><b>' + acc + '%</b><span>cards answered right · ' + S.right + ' of ' + S.casts + '</span></div><div><b>' + S.combos + '</b><span>grammar combos</span></div><div><b>' + S.talksRight + ' / ' + S.talks + '</b><span>conversations handled</span></div><div><b>' + RUN.deck.filter(c => c.up).length + '</b><span>cards mastered this run</span></div><div><b>' + (S.best || 0) + '</b><span>biggest single card</span></div><div><b>' + (S.spoken || 0) + '</b><span>cards spoken from memory</span></div></div>' +
+    return '<div class="stat-tiles"><div><b>' + acc + '%</b><span>cards answered right · ' + S.right + ' of ' + S.casts + '</span></div><div><b>' + S.combos + '</b><span>grammar combos</span></div><div><b>' + S.talksRight + ' / ' + S.talks + '</b><span>conversations handled</span></div><div><b>' + RUN.deck.filter(c => c.m).length + '</b><span>words mastered this run</span></div><div><b>' + (S.best || 0) + '</b><span>biggest single card</span></div><div><b>' + (S.spoken || 0) + '</b><span>cards typed from memory while Tongue-tied</span></div></div>' +
       '<div class="summary"><div><h3>Words to review · ' + review.length + '</h3>' + (review.length ? '<ul>' + review.map(row).join('') + '</ul><p class="small muted">The ones you miss most join your next starting deck.</p>' : '<p class="muted small">None! Every word you cast, you got right.</p>') + '</div>' +
       '<div><h3>Words you nailed · ' + nailed.length + '</h3>' + (nailed.length ? '<ul>' + nailed.slice(0, 30).map(row).join('') + '</ul>' : '<p class="muted small">Words you get right every time show up here.</p>') + '</div>' +
       (grammar.length || talks.length ? '<div>' + (grammar.length ? '<h3>Grammar to revisit</h3><ul>' + grammar.map(g => '<li>' + esc(g) + '</li>').join('') + '</ul>' : '') + (talks.length ? '<h3>Conversation lines to practice</h3><ul>' + talks.map(t => '<li><button class="say" data-say="' + esc(t) + '" aria-label="Play">▶</button><span class="han">' + esc(t) + '</span></li>').join('') + '</ul>' : '') + '<p class="small muted">Drill these in Bǎizì’s Grammar section and partner quests.</p></div>' : '') + '</div>';
@@ -20,7 +20,11 @@
     RUN = null; F = null; saveRun(); bindSay(); $('#again').addEventListener('click', title); $('#alb').addEventListener('click', album);
   }
   function victory() {
-    META.wins++; saveMeta();
+    META.wins++;
+    const lvl = RUN.asc || 0, unlocked = lvl >= (META.ascMax || 0) && lvl < SPICE.length;
+    if (unlocked) { META.ascMax = lvl + 1; META.ascPick = lvl + 1; }
+    saveMeta();
+    if (unlocked) setTimeout(() => toastMsg('Spice level ' + (lvl + 1) + ' unlocked: ' + SPICE[lvl]), 600);
         root.innerHTML = '<section class="ending win"><div class="ending-art">' + sealMark('胜') + '</div><p class="eyebrow">Run complete</p><h1>Both bosses are down.</h1><p class="lead"><span class="han">你真棒！</span> Nǐ zhēn bàng! You cleared the night market.</p>' + summary() +
       '<div class="row center"><button class="btn primary big" id="again">Play again</button><button class="ghost" id="alb">Word album</button></div></section>';
     if (!reduced()) confetti();

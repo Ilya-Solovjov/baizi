@@ -19,7 +19,7 @@
       if (r === 0) n.t = 'fight';
       else if (r === 4) n.t = 'treasure';
       else if (r === ROWS - 1) n.t = 'rest';
-      else { const x = Math.random(); n.t = x < 0.42 ? 'fight' : x < 0.62 ? 'event' : x < 0.75 && r >= 2 ? 'elite' : x < 0.86 ? 'shop' : r >= 2 && r <= 5 ? 'rest' : 'fight'; }
+      else { const x = Math.random(); n.t = x < 0.42 ? 'fight' : x < 0.62 ? 'event' : x < (spice(1) ? 0.8 : 0.75) && r >= 2 ? 'elite' : x < 0.86 ? 'shop' : r >= 2 && r <= 5 ? 'rest' : 'fight'; }
     }
     return { nodes, edges: [...edges] };
   }

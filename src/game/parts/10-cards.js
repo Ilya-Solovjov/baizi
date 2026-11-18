@@ -3,17 +3,17 @@
   // Part of speech sets the family; signature words get their own cards so the grammar drives the builds:
   //   Flow (verbs chain into 了), Count (numbers feed measure words), Fluster (adjectives, multiplied by 很 / 太 / 真),
   //   Topic (nouns stack Block, 是 turns Block into damage), Echo (因为 / 都 / 们 / 一下 make the next card play twice),
-  //   Mastery (Spent cards and Speaking mastered words), Questions (look ahead and fetch cards).
+  //   Mastery (Spent cards), Questions (look ahead and fetch cards).
   const NUMVAL = { 零: 0, 一: 1, 二: 2, 两: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9, 十: 10, 十九: 19, 二十: 20 };
   const TYPES = { atk: 'Attack', skl: 'Skill', pow: 'Power', junk: 'Noise' };
   const RARITY = { C: 'Common', U: 'Uncommon', R: 'Rare' };
   const ARCH = {
     flow: { zh: '势', en: 'Flow', d: 'Verbs build Flow; 了 and 那么 cash it in.' },
     count: { zh: '数', en: 'Count', d: 'Numbers build Count; measure words spend it for multi-hits.' },
-    fluster: { zh: '慌', en: 'Fluster', d: 'Adjectives Fluster the enemy; 很, 真 and 太 multiply it.' },
+    fluster: { zh: '慌', en: 'Fluster', d: 'Adjectives Fluster the enemy (damage each turn); 很, 真 and 太 multiply it. Some enemies Calm down and shed it.' },
     topic: { zh: '题', en: 'Topic', d: 'Nouns stack Block; 是 and 吃饱 turn Block into damage.' },
     echo: { zh: '回', en: 'Echo', d: '因为, 都, 们 and 一下 make your next card play twice.' },
-    mastery: { zh: '熟', en: 'Mastery', d: 'Spend cards and Speak mastered words; 学, 教 and 说 pay off.' },
+    mastery: { zh: '熟', en: 'Mastery', d: 'Spent cards power up 学, 教, 请客 and 说.' },
     question: { zh: '问', en: 'Questions', d: 'Question words look ahead and fetch the card you need.' },
     power: { zh: '力', en: 'Strength', d: 'Helping verbs give Strength, which boosts every hit.' },
   };
@@ -27,11 +27,11 @@
     Power: 'Lasts for the rest of the fight.',
     Flow: 'Each verb you play adds 1. Resets at the end of your turn.',
     Count: 'Numbers add to it. Measure words spend it. Lasts all fight.',
-    Fluster: 'At the end of your turn the enemy loses that much HP, then it drops by 1.',
+    Fluster: 'At the end of your turn the enemy loses that much HP, then Fluster drops by a quarter (at least 1).',
     Strength: '+1 damage on every hit.',
     Weak: 'Deals 25% less attack damage.',
     Vulnerable: 'Takes 50% more attack damage.',
-    Speak: 'Mastered (熟) cards have a 说 button: type the pinyin from memory and the card plays twice, then is Spent.',
+    'Tongue-tied': 'An enemy debuff: your next cards must be played by typing their pinyin from memory.',
   };
   const isVerb = c => ['v', 'vo', 'rv'].includes(c.pos);
   const PEOPLE = /teacher|classmate|Mr\.|Mrs\.|Miss|Ms\.|person|American|Canadian|dad|mom|brother|sister|father|mother|daughter|son\b|child|boy|girl|friend|student|waiter|businessperson|professor|lawyer|everyone|family|siblings|husband|wife/i;
@@ -77,21 +77,21 @@
     tally: { t: 'atk', r: 'C', a: 'count', cost: 1, v: u => ({ d: 3 + u, max: 8 }), txt: (v, L) => 'Spend your Count (up to 8): deal ' + L.d(v.d) + ' once per Count' + (L.live ? ' (×' + Math.max(1, Math.min(8, F.count)) + ')' : '') + '.', run: (v, x) => x.hit(v.d, Math.max(1, x.spendCount(v.max))) },
     tallylite: { t: 'atk', r: 'C', a: 'count', cost: 0, v: u => ({ d: 3 + u, max: 4 }), txt: (v, L) => 'Spend up to 4 Count: deal ' + L.d(v.d) + ' once per Count' + (L.live ? ' (×' + Math.max(1, Math.min(4, F.count)) + ')' : '') + '.', run: (v, x) => x.hit(v.d, Math.max(1, x.spendCount(v.max))) },
     polite: { t: 'skl', r: 'U', a: 'count', cost: 1, v: u => ({ b: 3 + u }), txt: (v, L) => 'Spend your Count (up to 8): gain ' + L.b(v.b) + ' Block per Count.', run: (v, x) => { const n = Math.max(1, x.spendCount(8)); x.block(v.b * n); } },
-    household: { t: 'skl', r: 'U', a: 'count', cost: 1, v: u => ({ f: 2 + u }), txt: (v, L) => 'Spend your Count (up to 8): Fluster ' + L.f(v.f) + ' per Count.', run: (v, x) => { const n = Math.max(1, x.spendCount(8)); x.fluster(v.f * n); } },
+    household: { t: 'skl', r: 'U', a: 'count', cost: 1, v: u => ({ f: 1 + u }), txt: (v, L) => 'Spend your Count (up to 8): Fluster ' + L.f(v.f) + ' per Count.', run: (v, x) => { const n = Math.max(1, x.spendCount(8)); x.fluster(v.f * n); } },
     portion: { t: 'atk', r: 'U', a: 'count', cost: 1, v: u => ({ d: 2 + u, b: 2 + u }), txt: (v, L) => 'Spend your Count (up to 8): per Count, deal ' + L.d(v.d) + ' and gain ' + v.b + ' Block.', run: async (v, x) => { const n = Math.max(1, x.spendCount(8)); await x.hit(v.d, n); x.block(v.b * n); } },
     // ── Fluster (adjectives, adverbs)
-    hex: { t: 'skl', r: 'C', a: 'fluster', cost: 1, v: u => ({ f: 5 + 2 * u }), txt: (v, L) => 'Fluster ' + L.f(v.f) + '.', run: (v, x) => x.fluster(v.f) },
+    hex: { t: 'skl', r: 'C', a: 'fluster', cost: 1, v: u => ({ f: 4 + 2 * u }), txt: (v, L) => 'Fluster ' + L.f(v.f) + '.', run: (v, x) => x.fluster(v.f) },
     wither: { t: 'skl', r: 'C', a: 'fluster', cost: 1, v: u => ({ f: 3 + u, w: 1 + u }), txt: (v, L) => 'Fluster ' + L.f(v.f) + '. Weak ' + v.w + '.', run: (v, x) => { x.fluster(v.f); x.weak(v.w); } },
     simple: { t: 'skl', r: 'C', a: 'fluster', cost: 0, v: u => ({ f: 2 + 2 * u }), txt: (v, L) => 'Fluster ' + L.f(v.f) + '.', run: (v, x) => x.fluster(v.f) },
     fleet: { t: 'skl', r: 'C', a: 'fluster', cost: 0, kw: () => ['Fleeting'], v: u => ({ f: 3 + 2 * u }), txt: (v, L) => 'Fluster ' + L.f(v.f) + '.', run: (v, x) => x.fluster(v.f) },
-    spicy: { t: 'skl', r: 'U', a: 'fluster', cost: 2, v: u => ({ f: 12 + 4 * u }), txt: (v, L) => 'Fluster ' + L.f(v.f) + '.', run: (v, x) => x.fluster(v.f) },
+    spicy: { t: 'skl', r: 'U', a: 'fluster', cost: 2, v: u => ({ f: 9 + 3 * u }), txt: (v, L) => 'Fluster ' + L.f(v.f) + '.', run: (v, x) => x.fluster(v.f) },
     sweet: { t: 'skl', r: 'C', a: 'fluster', cost: 1, v: u => ({ f: 3 + 2 * u, h: 3 }), txt: (v, L) => 'Fluster ' + L.f(v.f) + '. Heal ' + v.h + '.', run: (v, x) => { x.fluster(v.f); x.heal(v.h); } },
     wrong: { t: 'skl', r: 'C', a: 'fluster', cost: 1, v: u => ({ vul: 2 + u, f: 2 }), txt: (v, L) => 'Vulnerable ' + v.vul + '. Fluster ' + L.f(v.f) + '.', run: (v, x) => { x.vuln(v.vul); x.fluster(v.f); } },
     goodhex: { t: 'skl', r: 'C', a: 'fluster', cost: 1, v: u => ({ b: 5 + 2 * u, f: 3 }), txt: (v, L) => 'Gain ' + L.b(v.b) + ' Block. Fluster ' + L.f(v.f) + '.', run: (v, x) => { x.block(v.b); x.fluster(v.f); } },
     newhex: { t: 'skl', r: 'C', a: 'fluster', cost: 1, v: u => ({ f: 4 + 2 * u }), txt: (v, L) => 'Fluster ' + L.f(v.f) + '. Draw 1.', run: (v, x) => { x.fluster(v.f); x.draw(1); } },
-    many: { t: 'skl', r: 'U', a: 'fluster', cost: 1, v: u => ({ per: 2 + u }), txt: (v, L) => 'Fluster ' + v.per + ' for each other card in your hand' + (L.live ? ' (' + L.f(v.per * Math.max(0, F.hand.length - 1)) + ')' : '') + '.', run: (v, x) => x.fluster(v.per * x.handSize()) },
-    bitter: { t: 'skl', r: 'R', a: 'fluster', cost: u => u ? 0 : 1, v: () => ({}), txt: (v, L) => 'The enemy loses HP equal to its Fluster' + (L.live ? ' (' + F.fluster + ')' : '') + '.', run: (v, x) => x.loseHp(F.fluster) },
-    very: { t: 'skl', r: 'C', a: 'fluster', cost: 0, kw: u => kwIf(u, 'Keep'), v: () => ({}), txt: () => 'Your next Fluster this turn is doubled. Draw 1.', run: (v, x) => { F.fdouble = true; x.draw(1); } },
+    many: { t: 'skl', r: 'U', a: 'fluster', cost: 1, v: u => ({ per: 1 + u }), txt: (v, L) => 'Fluster ' + v.per + ' for each other card in your hand' + (L.live ? ' (' + L.f(v.per * Math.max(0, F.hand.length - 1)) + ')' : '') + '.', run: (v, x) => x.fluster(v.per * x.handSize()) },
+    bitter: { t: 'skl', r: 'R', a: 'fluster', cost: u => u ? 1 : 2, kw: () => ['Spent'], v: () => ({}), txt: (v, L) => 'The enemy loses HP equal to its Fluster' + (L.live ? ' (' + F.fluster + ')' : '') + '.', run: (v, x) => x.loseHp(F.fluster) },
+    very: { t: 'skl', r: 'C', a: 'fluster', cost: u => u ? 0 : 1, v: () => ({}), txt: () => 'Your next Fluster this turn is doubled.', run: () => { F.fdouble = true; } },
     really: { t: 'skl', r: 'U', a: 'fluster', cost: u => u ? 0 : 1, kw: () => ['Spent'], v: () => ({ k: 2 }), txt: (v, L) => 'Double the enemy’s Fluster' + (L.live ? ' (' + F.fluster + ' → ' + F.fluster * 2 + ')' : '') + '.', run: (v, x) => x.fluster(F.fluster, true) },
     too: { t: 'skl', r: 'R', a: 'fluster', cost: u => u ? 1 : 2, kw: () => ['Spent'], v: () => ({ k: 3 }), txt: (v, L) => 'Triple the enemy’s Fluster' + (L.live ? ' (' + F.fluster + ' → ' + F.fluster * 3 + ')' : '') + '.', run: (v, x) => x.fluster(F.fluster * 2, true) },
     not: { t: 'skl', r: 'C', a: 'fluster', cost: 1, v: u => ({ w: 2 + u, f: 2 }), txt: (v, L) => 'Weak ' + v.w + '. Fluster ' + L.f(v.f) + '.', run: (v, x) => { x.weak(v.w); x.fluster(v.f); } },
@@ -107,7 +107,7 @@
     snack: { t: 'skl', r: 'C', a: 'topic', cost: 1, v: u => ({ b: 5 + 2 * u, h: 1 + u }), txt: (v, L) => 'Gain ' + L.b(v.b) + ' Block. Heal ' + v.h + '.', run: (v, x) => { x.block(v.b); x.heal(v.h); } },
     plan: { t: 'skl', r: 'C', a: 'topic', cost: 1, v: u => ({ b: 4 + 2 * u }), txt: (v, L) => 'Gain ' + L.b(v.b) + ' Block. Next turn, +1 energy.', run: (v, x) => { x.block(v.b); x.nextTurn('energy', 1); } },
     double: { t: 'skl', r: 'U', a: 'topic', cost: u => u ? 1 : 2, v: () => ({}), txt: (v, L) => 'Double your Block' + (L.live ? ' (' + F.block + ' → ' + F.block * 2 + ')' : '') + '.', run: (v, x) => x.block(F.block, true) },
-    chars: { t: 'skl', r: 'R', a: 'mastery', cost: 1, v: u => ({ per: 3 + u }), txt: (v, L) => 'Gain ' + v.per + ' Block for each mastered (熟) card in your deck' + (L.live ? ' (' + L.b(v.per * RUN.deck.filter(c => c.up).length) + ')' : '') + '.', run: (v, x) => x.block(v.per * RUN.deck.filter(c => c.up).length) },
+    chars: { t: 'skl', r: 'R', a: 'mastery', cost: 1, v: u => ({ per: 3 + u }), txt: (v, L) => 'Gain ' + v.per + ' Block for each mastered (熟) card in your deck' + (L.live ? ' (' + L.b(v.per * RUN.deck.filter(c => c.m).length) + ')' : '') + '.', run: (v, x) => x.block(v.per * RUN.deck.filter(c => c.m).length) },
     sit: { t: 'skl', r: 'C', a: 'topic', cost: 1, kw: () => ['Keep'], v: u => ({ b: 7 + 3 * u }), txt: (v, L) => 'Gain ' + L.b(v.b) + ' Block.', run: (v, x) => x.block(v.b) },
     notyet: { t: 'skl', r: 'C', a: 'topic', cost: 1, v: u => ({ b: 5 + 2 * u }), txt: (v, L) => 'Gain ' + L.b(v.b) + ' Block. Next turn, draw 1 more.', run: (v, x) => { x.block(v.b); x.nextTurn('draw', 1); } },
     but: { t: 'skl', r: 'U', a: 'topic', cost: u => u ? 0 : 1, v: () => ({}), txt: (v, L) => 'Gain Block equal to the enemy’s planned damage' + (L.live ? ' (' + L.b(Math.min(25, incoming())) + ')' : '') + ', up to 25.', run: (v, x) => x.block(Math.min(25, incoming())) },
@@ -155,7 +155,7 @@
     cook: { t: 'pow', r: 'U', a: 'topic', cost: 1, v: u => ({ d: 2 + u }), txt: v => 'Whenever you gain Block from a card, the enemy loses ' + v.d + ' HP.', run: (v, x) => x.power('onBlockDmg', v.d) },
     still: { t: 'pow', r: 'R', a: 'topic', cost: u => u ? 2 : 3, v: () => ({}), txt: () => 'Your Block no longer goes away at the start of your turn.', run: (v, x) => x.power('keepBlock', 1) },
     this: { t: 'pow', r: 'U', a: 'topic', cost: 1, v: u => ({ b: 4 + 2 * u }), txt: v => 'At the end of each turn, gain ' + v.b + ' Block.', run: (v, x) => x.power('endBlock', v.b) },
-    sour: { t: 'pow', r: 'U', a: 'fluster', cost: 1, v: u => ({ f: 3 + u }), txt: v => 'At the start of each turn, Fluster ' + v.f + '.', run: (v, x) => x.power('flusterTurn', v.f) },
+    sour: { t: 'pow', r: 'U', a: 'fluster', cost: 1, v: u => ({ f: 2 + u }), txt: v => 'At the start of each turn, Fluster ' + v.f + '.', run: (v, x) => x.power('flusterTurn', v.f) },
     dayno: { t: 'pow', r: 'U', a: 'count', cost: 1, v: u => ({ k: 2 + u }), txt: v => 'At the start of each turn, +' + v.k + ' Count.', run: (v, x) => x.power('countStart', v.k) },
     // ── Noise (enemy curse)
     noise: { t: 'junk', r: 'C', a: null, cost: 0, kw: () => ['Fleeting'], v: () => ({}), txt: () => 'Can’t be played.', run: () => { } },

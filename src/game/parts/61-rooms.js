@@ -1,11 +1,11 @@
   // ───────────── Teahouse, shop, events, treasure ─────────────
   function rest() {
-    const heal = Math.floor(RUN.maxHp * 0.3);
+    const heal = Math.floor(RUN.maxHp * (spice(5) ? 0.15 : 0.25));
     root.innerHTML = topbar() + '<section class="room"><div class="room-art">' + sealMark('茶') + '</div><h2>Teahouse</h2><p class="muted">Rest, or study one word until it sticks.</p>' +
       '<div class="room-opts"><button class="path-btn" id="sip"><b>喝茶 · Rest</b><span>Heal ' + heal + ' HP</span></button><button class="path-btn" id="study"><b>学习 · Study</b><span>Upgrade one card. Upgrades add effects, not just numbers</span></button></div></section>';
     bindTop();
     $('#sip').addEventListener('click', () => { RUN.hp = Math.min(RUN.maxHp, RUN.hp + heal); sfx('good'); advance(); });
-    $('#study').addEventListener('click', () => pickCardScreen('Study a word', 'Pick a card to upgrade. Each shows its upgraded version.', c => !c.up && def(c).t !== 'junk', c => { c.up = true; c.xp = 3; speak(c.h, true); toastMsg(c.h + ' ' + c.p + ' · ' + short(c.e) + ': upgraded'); advance(); }, rest, true));
+    $('#study').addEventListener('click', () => pickCardScreen('Study a word', 'Pick a card to upgrade. Each shows its upgraded version.', c => !c.up && def(c).t !== 'junk', c => { c.up = true; speak(c.h, true); toastMsg(c.h + ' ' + c.p + ' · ' + short(c.e) + ': upgraded'); advance(); }, rest, true));
   }
   function pickCardScreen(titleTxt, sub, filter, onPick, back, preview) {
     const list = RUN.deck.filter(filter);
@@ -77,7 +77,7 @@
     $('#leaveE').addEventListener('click', advance);
     const pw = $('#pickW'); if (pw) pw.addEventListener('click', () => pickCardScreen('Choose a word to brush', 'Then type its pinyin.', c => !c.up && def(c).t !== 'junk', async c => {
       const ok = await castQuestion(c, 'type');
-      if (ok) { c.up = true; c.xp = 3; toastMsg('The calligrapher brushes ' + c.h + '. Upgraded.'); } else toastMsg('“多练习。 Practice more,” says the calligrapher.');
+      if (ok) { c.up = true; toastMsg('The calligrapher brushes ' + c.h + '. Upgraded.'); } else toastMsg('“多练习。 Practice more,” says the calligrapher.');
       saveRun(); advance();
     }, calligraphyEvent));
   }

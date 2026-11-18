@@ -20,6 +20,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-This license covers the code in this repository. Stroke data in
-src/data/strokes.js comes from hanzi-writer-data / Make Me a Hanzi and is
-under the Arphic Public License (see licenses/ARPHICPL.TXT).
+This license covers the code in this repository. The fonts in src/game/fonts
+(Pixelify Sans, Jersey 10, IBM Plex Sans Condensed) are under the SIL Open Font
+License; see licenses/.
