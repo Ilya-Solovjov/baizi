@@ -79,6 +79,10 @@ A new word becomes a card automatically: its part of speech picks a card family,
 
 Built with help from Claude.
 
+## Inspiration
+
+Bǎizì's structure (deckbuilding, relics, potions, act bosses, map paths and difficulty levels) is inspired by [*Slay the Spire*](https://www.megacrit.com/) by Mega Crit. This is an independent fan project, not affiliated with or endorsed by Mega Crit, and it uses none of its code, art or assets.
+
 ## Content note
 
 The word lists follow the lesson vocabulary of *Modern Chinese 1A* (Better Chinese). No lesson texts, dialogues, exercises or images from the book are included. Grammar explanations, drills and culture questions are original. This project isn't affiliated with Better Chinese.
