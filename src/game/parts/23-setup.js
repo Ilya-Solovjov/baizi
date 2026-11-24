@@ -19,6 +19,7 @@
     RUN.deck = starter.map(makeCard); RUN.seen = starter.map(w => w.h); RUN.weak = weak.map(w => w.h);
     if (spice(9)) RUN.deck.push({ uid: UID++, h: '乱', p: 'luàn', e: 'noise', pos: 'noise', tid: 'noise', up: false, xp: 0 });
     META.runs++; saveMeta(); saveRun();
+    track('run-start', 'Run started'); if (META.runs === 1) track('first-run', 'New player: first run');
     if (weak.length) toastMsg('Words you missed last time joined your deck: ' + weak.map(w => w.h).join(' '));
   }
   // Like a deckbuilder's opening blessing: pick one uncommon card from three different builds to point your run somewhere.

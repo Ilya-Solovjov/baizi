@@ -15,12 +15,14 @@
   function bindSay() { $$('[data-say]').forEach(b => b.addEventListener('click', () => speak(b.dataset.say, true))); }
   function gameOver() {
     sfx('bad'); const fl = RUN.floor + 1;
+    track('run-loss-act' + RUN.act, 'Run lost in act ' + RUN.act);
     root.innerHTML = '<section class="ending"><div class="ending-art">' + sealMark('败') + '</div><p class="eyebrow">Run over</p><h1>You fell on act ' + RUN.act + ', floor ' + fl + '.</h1><p class="lead">Every word you missed this run is listed below, and the ones you missed most join your next starting deck.</p>' + summary() +
       '<div class="row center"><button class="btn primary big" id="again">New run</button><button class="ghost" id="alb">Word album</button></div></section>';
     RUN = null; F = null; saveRun(); bindSay(); $('#again').addEventListener('click', title); $('#alb').addEventListener('click', album);
   }
   function victory() {
     META.wins++;
+    track('run-win', 'Run won'); if (RUN.asc) track('run-win-spice' + RUN.asc, 'Run won at Spice ' + RUN.asc);
     const lvl = RUN.asc || 0, unlocked = lvl >= (META.ascMax || 0) && lvl < SPICE.length;
     if (unlocked) { META.ascMax = lvl + 1; META.ascPick = lvl + 1; }
     saveMeta();

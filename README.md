@@ -28,6 +28,10 @@ Bǎizì installs as an app and works offline after your first visit. Open https:
 
 The app updates itself the next time you open it online. Progress is saved in the browser for that address.
 
+## Privacy
+
+The published game counts visits with [GoatCounter](https://www.goatcounter.com), which uses no cookies and stores no personal data: page views, plus anonymous events when a run starts, is won or is lost. Progress stays in your browser. To turn counting off in your own copy, leave `GOATCOUNTER_CODE` empty in `src/game/parts/03-analytics.js`.
+
 ## Run it locally
 
 Open `docs/index.html` in a browser. It's one self-contained file; only the Chinese serif font comes from Google Fonts, and it falls back to your system's.
