@@ -2,7 +2,7 @@
   // Anonymous visit counts through GoatCounter (https://www.goatcounter.com): no cookies, no personal data.
   // Set GOATCOUNTER_CODE to your site code (the "baizi" in baizi.goatcounter.com) to turn it on; leave it empty to turn it off.
   // It only runs on the published site (not on file://, localhost, or inside other hosts), so testing never adds visits.
-  const GOATCOUNTER_CODE = 'ilyasolo25';
+  const GOATCOUNTER_CODE = 'baizi';
   const ANALYTICS_ON = !!GOATCOUNTER_CODE && /\.github\.io$/.test(location.hostname);
   if (ANALYTICS_ON) {
     const s = document.createElement('script');
