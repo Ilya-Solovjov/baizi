@@ -1,5 +1,5 @@
 // Bǎizì offline cache. The version changes whenever the game is rebuilt, which replaces the old cache.
-const CACHE = 'baizi-7a46780641';
+const CACHE = 'baizi-8617dc59e0';
 const CORE = ['./', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
